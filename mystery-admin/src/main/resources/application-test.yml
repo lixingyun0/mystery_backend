@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  web:
+    resources:
+      static-locations: classpath:none/
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:8004/lottery
+    username: lottery
+    password: Lottery123!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: 127.0.0.1
+    port: 15738
+    database: 9
+    password: 'KyewzOqiX58T2H5GbYWk15AD65CMpGlDMlqu'
+    timeout: 5000
+
+logging:
+  level:
+    root: info
+    springfox: error
+    com.xingyun.mysterycommon.dao.mapper: debug
+    org.springframework.context.annotation.ClassPathBeanDefinitionScanner: info
+    org.redisson.connection: error
+
+
+captcha:
+  google:
+    endpoint: https://www.google.com/recaptcha/api/siteverify
+    secret: 6Le0lugdAAAAAKnmSE7-I4Ac5uJxQoF2ADJh-aDO
+
+
+
+
+
+
+
+

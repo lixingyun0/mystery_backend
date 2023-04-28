@@ -1,0 +1,16 @@
+package com.xingyun.mysterycommon.dao.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xingyun.mysterycommon.dao.domain.entity.MysteryBoxReward;
+
+/**
+ * <p>
+ * 盲盒模版奖励表 Mapper 接口
+ * </p>
+ *
+ * @author xingyun
+ * @since 2023-04-21
+ */
+public interface MysteryBoxRewardMapper extends BaseMapper<MysteryBoxReward> {
+
+}

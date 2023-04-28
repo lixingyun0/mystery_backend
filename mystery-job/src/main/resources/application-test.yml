@@ -1,0 +1,65 @@
+spring:
+  web:
+    resources:
+      static-locations: classpath:none/
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/mystery
+    username: mystery
+    password: Mystery123!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 1
+    password: 'KyewzOqiX58T2H5GbYWk15AD65CMpGlDMlqu'
+    timeout: 5000
+  rabbitmq:
+    host: '127.0.0.1'
+    port: 5672
+    username: 'rabbitmq_xingyun'
+    password: 'rabbitmq_xingyun456'
+    virtual-host: /mystery
+    listener:
+      direct:
+        acknowledge-mode: manual
+      simple:
+        acknowledge-mode: manual
+    cache:
+      connection:
+        mode: connection
+        size: 32
+      channel:
+        size: 8
+        checkout-timeout: 15000
+    requested-channel-max: 16
+
+logging:
+  level:
+    root: info
+    springfox: error
+    com.xingyun.mysterycommon.dao.mapper: debug
+    org.springframework.context.annotation.ClassPathBeanDefinitionScanner: info
+    org.redisson.connection: error
+
+
+contract:
+  mystery_address: '0xf7E75082e8d4c9e01f07789f7e8A39731c6820d6'
+  owner: '0xB6C595dE75174146bb9c088E0d3E50274839266B'
+
+web3j:
+  public-rpc: https://sepolia.infura.io/v3/99919094740a4b57a459737deec46006
+
+
+captcha:
+  google:
+    endpoint: https://www.google.com/recaptcha/api/siteverify
+    secret: 6Le0lugdAAAAAKnmSE7-I4Ac5uJxQoF2ADJh-aDO
+
+
+
+
+
+
+
+
