@@ -4,6 +4,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -15,6 +16,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebAppConfig implements WebMvcConfigurer {
+
+    /**
+     * 配置拦截器
+     *
+     * @param registry InterceptorRegistry
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+
+        registry.addInterceptor(loginInterceptor()).addPathPatterns("/**");
+    }
+
+    @Bean
+    public LoginInterceptor loginInterceptor() {
+        return new LoginInterceptor();
+    }
 
 
     /**

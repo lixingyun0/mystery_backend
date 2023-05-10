@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xingyun.mysteryapi.common.PageResult;
 import com.xingyun.mysteryapi.component.LoadTokenLibrary;
+import com.xingyun.mysteryapi.config.Permission;
 import com.xingyun.mysteryapi.request.*;
 import com.xingyun.mysteryapi.response.MintRecordVo;
 import com.xingyun.mysteryapi.response.UserApproveVo;
@@ -77,7 +78,7 @@ public class ConsumerController {
     @ApiOperation("我的购买记录")
     public R<PageResult<MintRecordVo>> pageMint(@Valid @RequestBody PageMintParam param){
         Page<MintRecord> page = mintRecordService.lambdaQuery()
-                .eq(MintRecord::getMintAddress, param.getWalletAddress())
+                .eq(MintRecord::getMintAddress, param.getWalletAddress().toLowerCase())
                 .orderByDesc(MintRecord::getCreateTime)
                 .page(param.buildPage());
 
@@ -150,6 +151,7 @@ public class ConsumerController {
 
     @PostMapping("addToken")
     @ApiOperation("添加代币")
+    @Permission
     public R addToken(@Valid @RequestBody AddTokenParam param) throws Exception {
 
         boolean exists = userApproveService.lambdaQuery().eq(UserApprove::getUserAddress, param.getWalletAddress().toLowerCase())
@@ -173,6 +175,7 @@ public class ConsumerController {
 
     @PostMapping("removeToken")
     @ApiOperation("移除代币")
+    @Permission
     public R removeToken(@Valid @RequestBody RemoveTokenParam param){
 
         UserApprove userApprove = userApproveService.lambdaQuery().eq(UserApprove::getUserAddress, param.getWalletAddress().toLowerCase())

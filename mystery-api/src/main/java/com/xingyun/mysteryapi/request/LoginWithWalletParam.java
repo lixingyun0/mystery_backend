@@ -21,4 +21,7 @@ public class LoginWithWalletParam {
     @NotBlank
     @ApiModelProperty(value = "origin text to sign",required = true)
     private String originText;
+
+    @ApiModelProperty("邀请人地址")
+    private String inviteAddress;
 }

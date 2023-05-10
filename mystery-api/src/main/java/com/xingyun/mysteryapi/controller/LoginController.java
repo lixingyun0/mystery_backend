@@ -6,6 +6,10 @@ import com.xingyun.mysteryapi.request.LoginWithWalletParam;
 import com.xingyun.mysteryapi.request.TestSignParam;
 import com.xingyun.mysteryapi.response.TestSignVo;
 import com.xingyun.mysterycommon.base.R;
+import com.xingyun.mysterycommon.dao.domain.entity.Team;
+import com.xingyun.mysterycommon.dao.domain.entity.UserAccount;
+import com.xingyun.mysterycommon.dao.service.ITeamService;
+import com.xingyun.mysterycommon.dao.service.IUserAccountService;
 import com.xingyun.mysterycommon.utils.EthereumSignUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.SignatureException;
 import java.time.Instant;
 import java.util.UUID;
@@ -30,6 +35,12 @@ import java.util.concurrent.TimeUnit;
 @Api(tags = "User")
 @Slf4j
 public class LoginController {
+
+    @Autowired
+    private IUserAccountService userAccountService;
+
+    @Autowired
+    private ITeamService teamService;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -49,6 +60,33 @@ public class LoginController {
         if (!signatureValid){
             return R.failed("Invalid signature");
         }
+        param.setAddress(param.getAddress().toLowerCase());
+
+        UserAccount userAccount = userAccountService.lambdaQuery().eq(UserAccount::getWalletAddress, param.getAddress().toLowerCase()).one();
+
+        if (userAccount ==null){
+            UserAccount addUserAccount = new UserAccount();
+            addUserAccount.setPermanentPower(new BigDecimal("1000"));
+            addUserAccount.setMiningFlag(false);
+            addUserAccount.setTokenAmount(BigDecimal.ZERO);
+            addUserAccount.setWaitClaimToken(BigDecimal.ZERO);
+            addUserAccount.setWalletAddress(param.getAddress());
+            if (StringUtils.isNotBlank(param.getInviteAddress())){
+                UserAccount invite = userAccountService.lambdaQuery().eq(UserAccount::getWalletAddress, param.getInviteAddress().toLowerCase()).one();
+                if (invite == null){
+                    return R.failed("Invalid invite URL");
+                }
+                addUserAccount.setInviteAddress(param.getInviteAddress().toLowerCase());
+                Team team = teamService.lambdaQuery().eq(Team::getLeader, param.getInviteAddress().toLowerCase()).one();
+                addUserAccount.setJoinedTeamPower(team.getTotalPower().multiply(new BigDecimal("0.01")).setScale(2, RoundingMode.HALF_DOWN));
+                teamService.lambdaUpdate().eq(Team::getLeader, param.getInviteAddress().toLowerCase()).setSql(" member_num = member_num + 1, total_power = total_power + "+ addUserAccount.getPermanentPower()).update();
+            }
+            userAccountService.save(addUserAccount);
+
+            Team team = new Team();
+            team.setLeader(param.getAddress());
+            teamService.save(team);
+        }
 
         LoginRes loginRes = new LoginRes();
         String token = UUID.randomUUID().toString();
@@ -56,12 +94,12 @@ public class LoginController {
         loginRes.setToken(token);
         loginRes.setWalletAddress(param.getAddress());
 
-        String oldToken = redisTemplate.opsForValue().get("USER_TOKEN_ADDRESS" + param.getAddress());
+        String oldToken = redisTemplate.opsForValue().get("USER_TOKEN_ADDRESS" + param.getAddress().toLowerCase());
         if (StringUtils.isNotBlank(oldToken)) {
             redisTemplate.delete("USER_TOKEN" + oldToken);
         }
         redisTemplate.opsForValue().set("USER_TOKEN" + token, JSON.toJSONString(loginRes), 7, TimeUnit.DAYS);
-        redisTemplate.opsForValue().set("USER_TOKEN_ADDRESS" + param.getAddress(), token, 7, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("USER_TOKEN_ADDRESS" + param.getAddress().toLowerCase(), token, 7, TimeUnit.DAYS);
 
         return R.ok(loginRes);
 
