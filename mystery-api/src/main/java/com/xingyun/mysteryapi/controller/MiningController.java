@@ -3,6 +3,7 @@ package com.xingyun.mysteryapi.controller;
 import com.xingyun.mysteryapi.common.LoginSession;
 import com.xingyun.mysteryapi.config.Permission;
 import com.xingyun.mysteryapi.request.AuditParam;
+import com.xingyun.mysteryapi.response.MiningVo;
 import com.xingyun.mysteryapi.response.WaitClaimAmountVo;
 import com.xingyun.mysterycommon.base.R;
 import com.xingyun.mysterycommon.contract.MysterySpaceChainLink;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -30,6 +32,19 @@ public class MiningController {
 
     @Autowired
     private IUserAccountService userAccountService;
+
+    @PostMapping("info")
+    @Permission
+    @ApiOperation("挖矿信息")
+    public R<MiningVo> info(){
+        MiningVo miningVo = new MiningVo();
+        miningVo.setMyPower(new BigDecimal("10000.00"));
+        miningVo.setTotalPower(new BigDecimal("87897987678686.00"));
+        miningVo.setBlockNumber(101L);
+        miningVo.setEstimateIncome(new BigDecimal("9.00"));
+        miningVo.setMiningSessionEndTime(System.currentTimeMillis() + 1000*60*500);
+        return R.ok(miningVo);
+    }
 
     @PostMapping("open")
     @Permission
