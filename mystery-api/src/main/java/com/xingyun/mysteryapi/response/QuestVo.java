@@ -41,6 +41,12 @@ public class QuestVo {
          * 奖励名称
          */
         private String awardName;
+
+        @ApiModelProperty("是否已领取")
+        /**
+         * 奖励名称
+         */
+        private Boolean claimed;
     }
 
 

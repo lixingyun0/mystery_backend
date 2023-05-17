@@ -1,10 +1,8 @@
 package com.xingyun.mysteryjob.listener.rabbitmq;
 
 import com.rabbitmq.client.Channel;
-import com.xingyun.mysterycommon.dao.domain.entity.MintRecord;
-import com.xingyun.mysterycommon.dao.domain.entity.MysteryBox;
-import com.xingyun.mysterycommon.dao.service.IMintRecordService;
-import com.xingyun.mysterycommon.dao.service.IMysteryBoxService;
+import com.xingyun.mysterycommon.dao.domain.entity.*;
+import com.xingyun.mysterycommon.dao.service.*;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -17,8 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.web3j.utils.Numeric;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -31,6 +33,17 @@ public class MintListener {
 
     @Autowired
     private IMysteryBoxService mysteryBoxService;
+
+    @Autowired
+    private ITokenLibraryService tokenLibraryService;
+
+    @Autowired
+    private IUserAccountService userAccountService;
+
+
+    @Autowired
+    private ILeaderboardService leaderboardService;
+
 
     @Autowired
     private RedissonClient redissonClient;
@@ -84,6 +97,37 @@ public class MintListener {
             mintRecord.setCostTokenSymbol(mysteryBox.getCoinSymbol());
 
             mintRecordService.save(mintRecord);
+
+            TokenLibrary tokenLibrary = tokenLibraryService.lambdaQuery().eq(TokenLibrary::getAddress, mysteryBox.getCoin()).one();
+            BigDecimal tokenValuePrice = tokenLibrary.getTokenValueUSDT(mysteryBox.getPrice());
+            BigDecimal power = tokenValuePrice.multiply(new BigDecimal("1000")).setScale(2, RoundingMode.HALF_DOWN);
+            if (power.compareTo(BigDecimal.ZERO) >0 ){
+                userAccountService.lambdaUpdate().eq(UserAccount::getWalletAddress,address.toLowerCase())
+                        .setSql(" permanent_power = permanent_power + " + power);
+            }
+
+            //leaderboard
+            String issue = LocalDate.now().get(WeekFields.ISO.weekBasedYear()) + "" + LocalDate.now().get(WeekFields.ISO.weekOfWeekBasedYear());
+
+            Leaderboard leaderboard = leaderboardService.lambdaQuery().eq(Leaderboard::getWalletAddress, address.toLowerCase())
+                    .eq(Leaderboard::getIssue, issue).one();
+
+            if (leaderboard == null){
+                Leaderboard leaderboardAdd= new Leaderboard();
+                leaderboardAdd.setWalletAddress(address.toLowerCase());
+                leaderboardAdd.setAmount(tokenValuePrice);
+                leaderboardAdd.setIssue(issue);
+                leaderboardAdd.setClaimed(false);
+                leaderboardAdd.setReward(BigDecimal.ZERO);
+                leaderboardService.save(leaderboardAdd);
+            }else {
+                Leaderboard leaderboardUpdate= new Leaderboard();
+                leaderboardUpdate.setId(leaderboard.getId());
+                leaderboardUpdate.setAmount(leaderboard.getAmount().add(tokenValuePrice));
+
+                leaderboardService.updateById(leaderboardUpdate);
+            }
+
 
         }catch (RuntimeException e) {
             throw e;

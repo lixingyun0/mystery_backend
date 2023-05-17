@@ -2,11 +2,10 @@ package com.xingyun.mysterycommon.dao.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import java.time.LocalDateTime;
+import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * <p>
@@ -14,7 +13,7 @@ import java.util.Date;
  * </p>
  *
  * @author xingyun
- * @since 2023-04-23
+ * @since 2023-05-17
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -38,7 +37,7 @@ public class TransactionRecord implements Serializable {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
 
 }

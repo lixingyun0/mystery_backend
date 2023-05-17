@@ -77,9 +77,7 @@ public class LoginController {
                     return R.failed("Invalid invite URL");
                 }
                 addUserAccount.setInviteAddress(param.getInviteAddress().toLowerCase());
-                Team team = teamService.lambdaQuery().eq(Team::getLeader, param.getInviteAddress().toLowerCase()).one();
-                addUserAccount.setJoinedTeamPower(team.getTotalPower().multiply(new BigDecimal("0.01")).setScale(2, RoundingMode.HALF_DOWN));
-                teamService.lambdaUpdate().eq(Team::getLeader, param.getInviteAddress().toLowerCase()).setSql(" member_num = member_num + 1, total_power = total_power + "+ addUserAccount.getPermanentPower()).update();
+                teamService.lambdaUpdate().eq(Team::getLeader, param.getInviteAddress().toLowerCase()).setSql(" member_num = member_num + 1").update();
             }
             userAccountService.save(addUserAccount);
 

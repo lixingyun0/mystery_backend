@@ -1,8 +1,8 @@
 package com.xingyun.mysterycommon.dao.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+import java.time.LocalDateTime;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author xingyun
- * @since 2023-04-26
+ * @since 2023-05-17
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -102,7 +102,7 @@ public class MintRecord implements Serializable {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
 
 }

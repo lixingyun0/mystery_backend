@@ -5,10 +5,13 @@ import com.xingyun.mysteryapi.config.Permission;
 import com.xingyun.mysteryapi.response.TeamVo;
 import com.xingyun.mysteryapi.response.WaitClaimAmountVo;
 import com.xingyun.mysterycommon.base.R;
+import com.xingyun.mysterycommon.dao.domain.entity.Team;
 import com.xingyun.mysterycommon.dao.domain.entity.UserAccount;
+import com.xingyun.mysterycommon.dao.service.ITeamService;
 import com.xingyun.mysterycommon.dao.service.IUserAccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,24 +28,37 @@ public class TeamController {
     @Autowired
     private IUserAccountService userAccountService;
 
+    @Autowired
+    private ITeamService teamService;
 
     @PostMapping("info")
     @Permission
     @ApiOperation("挖矿队伍信息")
     public R<TeamVo> info(){
+
+        UserAccount userAccount = userAccountService.lambdaQuery().eq(UserAccount::getWalletAddress, LoginSession.getWalletAddress()).one();
+        Team myTeam = teamService.lambdaQuery().eq(Team::getLeader, LoginSession.getWalletAddress()).one();
         TeamVo teamVo = new TeamVo();
-        teamVo.setMyTeamPower(new BigDecimal("2323525363.00"));
-        teamVo.setMyTeamName("mining dog");
-        teamVo.setMyTeamMemberNum(1000L);
-        teamVo.setPowerFromMyTeam(teamVo.getMyTeamPower().multiply(new BigDecimal("0.10"))
-                .setScale(2, RoundingMode.HALF_DOWN));
+        teamVo.setMyTeamLeader(LoginSession.getWalletAddress());
+        teamVo.setMyTeamPower(myTeam.getTotalPower());
+        teamVo.setMyTeamName(myTeam.getTeamName());
+        teamVo.setMyTeamMemberNum(myTeam.getMemberNum());
+        teamVo.setPowerFromMyTeam(userAccount.getMyTeamPower());
 
-        teamVo.setJoinTeamPower(new BigDecimal("67435234523.00"));
-        teamVo.setJoinTeamName("tiger");
-        teamVo.setJoinTeamMemberNum(996L);
-        teamVo.setPowerFromJoinTeam(teamVo.getJoinTeamPower().multiply(new BigDecimal("0.01"))
-                .setScale(2,RoundingMode.HALF_DOWN));
-
+        if (StringUtils.isNotBlank(userAccount.getInviteAddress())){
+            Team joinTeam = teamService.lambdaQuery().eq(Team::getLeader, userAccount.getInviteAddress()).one();
+            teamVo.setJoinTeamLeader(userAccount.getInviteAddress());
+            teamVo.setJoinTeamPower(joinTeam.getTotalPower());
+            teamVo.setJoinTeamName(joinTeam.getTeamName());
+            teamVo.setJoinTeamMemberNum(joinTeam.getMemberNum());
+            teamVo.setPowerFromJoinTeam(userAccount.getJoinedTeamPower());
+        }else {
+            teamVo.setJoinTeamLeader("");
+            teamVo.setJoinTeamPower(BigDecimal.ZERO);
+            teamVo.setJoinTeamName("");
+            teamVo.setJoinTeamMemberNum(0L);
+            teamVo.setPowerFromJoinTeam(BigDecimal.ZERO);
+        }
         return R.ok(teamVo);
     }
 

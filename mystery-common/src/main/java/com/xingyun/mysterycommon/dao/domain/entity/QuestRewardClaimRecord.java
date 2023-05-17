@@ -1,6 +1,5 @@
 package com.xingyun.mysterycommon.dao.domain.entity;
 
-import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
@@ -10,7 +9,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 消费奖励配置表
+ * 任务奖励领取记录
  * </p>
  *
  * @author xingyun
@@ -18,7 +17,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class AwardConfig implements Serializable {
+public class QuestRewardClaimRecord implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,9 +25,19 @@ public class AwardConfig implements Serializable {
     private Long id;
 
     /**
-     * 消费金额
+     * 钱包地址
      */
-    private BigDecimal amount;
+    private String walletAddress;
+
+    /**
+     * 日期
+     */
+    private String date;
+
+    /**
+     * 奖励ID
+     */
+    private Long rewardId;
 
     /**
      * 创建时间

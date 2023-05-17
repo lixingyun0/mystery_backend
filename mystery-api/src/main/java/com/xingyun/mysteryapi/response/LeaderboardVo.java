@@ -25,4 +25,16 @@ public class LeaderboardVo {
      */
     @ApiModelProperty("金额")
     private BigDecimal amount;
+
+    /**
+     * 奖励
+     */
+    @ApiModelProperty("奖励")
+    private BigDecimal reward;
+
+    /**
+     * 是否领取
+     */
+    @ApiModelProperty("是否领取")
+    private Boolean claimed;
 }

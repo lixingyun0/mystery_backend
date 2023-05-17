@@ -11,6 +11,9 @@ public class TeamVo {
     @ApiModelProperty("我的队名")
     private String myTeamName;
 
+    @ApiModelProperty("我的队伍队长地址")
+    private String myTeamLeader;
+
     @ApiModelProperty("我的队伍总算力")
     private BigDecimal myTeamPower;
 
@@ -31,4 +34,7 @@ public class TeamVo {
 
     @ApiModelProperty("加入的队伍成员数")
     private Long joinTeamMemberNum;
+
+    @ApiModelProperty("加入的队伍队长地址")
+    private String joinTeamLeader;
 }

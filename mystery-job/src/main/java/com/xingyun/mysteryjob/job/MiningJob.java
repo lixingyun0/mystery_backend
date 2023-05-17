@@ -52,7 +52,7 @@ public class MiningJob {
             start = userAccount.getPermanentPower().add(userAccount.getMyTeamPower())
                     .add(userAccount.getJoinedTeamPower()).divide(totalPower,8, RoundingMode.HALF_DOWN).add(start);
             UserPercent userPercent = new UserPercent();
-            userPercent.setWalletAddress(userPercent.getWalletAddress());
+            userPercent.setWalletAddress(userAccount.getWalletAddress());
             userPercent.setPercent(new BigDecimal(start.toString()));
             userPercentList.add(userPercent);
         }
@@ -70,7 +70,7 @@ public class MiningJob {
 
                 userAccountService.lambdaUpdate()
                         .eq(UserAccount::getWalletAddress,userPercent.getWalletAddress())
-                        .setSql(" wait_claim = wait_claim + " + blockMinerRecord.getReward()).update();
+                        .setSql(" wait_claim_token = wait_claim_token + " + blockMinerRecord.getReward()).update();
                 return;
             }
         }
